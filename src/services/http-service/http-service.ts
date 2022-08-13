@@ -20,10 +20,7 @@ export class HttpService implements IHttpService{
 				headers: this.headers,
 				body: JSON.stringify(body)})
                 .then(async (response: Response) => {
-				const responseJson = await response.json();
-				if (responseJson.success) {
-					return responseJson;
-				}
+				return response.json();
 			})
 				.catch((error: Error) => (error.message))
 		)

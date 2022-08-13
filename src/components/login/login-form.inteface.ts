@@ -1,4 +1,4 @@
 export interface ILoginForm{
-    username: FormDataEntryValue | null | string,
-    password: FormDataEntryValue | null | string
+    username: FormDataEntryValue | null | string | undefined,
+    password: FormDataEntryValue | null | string | undefined
 }

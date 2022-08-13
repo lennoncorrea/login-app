@@ -9,8 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import { ILoginForm } from './login-form.inteface';
 import ILoginResponse from './login-response.interface';
 import IHttpService from '../../services/http-service/http-service.interface';
-import { Alert, IconButton, Snackbar } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import Loading from '../loading/loading';
+import ErrorSnackBar from '../snackbar/error-snackbar';
 
 
 const darkTheme = createTheme({
@@ -21,40 +21,27 @@ const darkTheme = createTheme({
 
 export default function Login({ httpService }: { httpService: IHttpService }) {
 	const navigate = useNavigate();
-	const [open, setOpen] = React.useState(false);
-	const handleSnackbarClose = (event: React.SyntheticEvent | Event, reason?: string) => {
-		if (reason === 'clickaway') {
-			return;
-		}
-		setOpen(false);
-	}
-	const handleSnackbarSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+	const [openSnackbar, setOpenSnackbar] = React.useState(false);
+	const [openLoading, setOpenLoading] = React.useState(false);
+	const handleButtonSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const data = new FormData(event.currentTarget);
 		const loginForm: ILoginForm = {
 			username: data.get('username'),
 			password: data.get('password'),
 		}
+		setOpenLoading(true);
 		const response: ILoginResponse = await httpService.post("login", loginForm);
+		setOpenLoading(false);
+		if (response === undefined) {
+			throw new Error("Invalid login response");
+		}
 		if (response.success) {
 			navigate("/home", { replace: true });
 		} else {
-			console.log("teste");
-			setOpen(true);
+			setOpenSnackbar(true);
 		}
 	}
-	const snackBarContent = (
-		<React.Fragment>
-			<IconButton
-				size="small"
-				aria-label="close"
-				color="inherit"
-				onClick={handleSnackbarClose}
-			>
-				<CloseIcon fontSize="small" />
-			</IconButton>
-		</React.Fragment>
-	);
 	return (
 		<>
 			<ThemeProvider theme={darkTheme}>
@@ -68,7 +55,7 @@ export default function Login({ httpService }: { httpService: IHttpService }) {
 							alignItems: 'center',
 						}}
 					>
-						<Box component="form" onSubmit={handleSnackbarSubmit} noValidate sx={{ mt: 1 }}>
+						<Box component="form" onSubmit={handleButtonSubmit} noValidate sx={{ mt: 1 }}>
 							<TextField
 								margin="normal"
 								required
@@ -100,19 +87,14 @@ export default function Login({ httpService }: { httpService: IHttpService }) {
 						</Box>
 					</Box>
 				</Container>
-				<Snackbar
-					open={open}
-					autoHideDuration={5000}
-					onClose={handleSnackbarClose}
-					message="Wrong credentials"
-					action={snackBarContent}
-				>
-					<Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
-						{"Wrong credentinals"}
-					</Alert>
-				</Snackbar>
+				<ErrorSnackBar
+					open={openSnackbar}
+					setOpen={setOpenSnackbar}
+					message={"Invalid credentials"}
+					type={"error"}
+				/>
+				<Loading open={openLoading} />
 			</ThemeProvider>
 		</>
-
 	)
 };
