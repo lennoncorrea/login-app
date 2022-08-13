@@ -10,7 +10,7 @@ import { ILoginForm } from './login-form.inteface';
 import ILoginResponse from './login-response.interface';
 import IHttpService from '../../services/http-service/http-service.interface';
 import Loading from '../loading/loading';
-import ErrorSnackBar from '../snackbar/error-snackbar';
+import SnackBar from '../snackbar/error-snackbar';
 
 
 const darkTheme = createTheme({
@@ -87,7 +87,7 @@ export default function Login({ httpService }: { httpService: IHttpService }) {
 						</Box>
 					</Box>
 				</Container>
-				<ErrorSnackBar
+				<SnackBar
 					open={openSnackbar}
 					setOpen={setOpenSnackbar}
 					message={"Invalid credentials"}
